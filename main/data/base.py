@@ -15,7 +15,6 @@ def load_data_to_workspace(workspace_root):
     conf = get_config()
 
 
-
 def refactor_annotations(annotations_path):
     try:
         print("refactoring annotations")

@@ -3,13 +3,12 @@ import yaml
 
 import pandas as pd
 
-from toolbox.util import Map
 from toolbox.config import get_config
 
 from main.parameters import __version__
 
 
-class ParamLoader(Map):
+class ParamLoader:
     def __init__(self, id):
         # loading parameter set
         conf = get_config()
@@ -38,7 +37,6 @@ class ParamLoader(Map):
 
         self.split_params = split_keys.set_index("key").loc[self.split_key].set_index("part")["value"].to_dict()
         self.split_params = {k: v / sum(self.split_params.values()) for k, v in self.split_params.items()}
-        self.split_params = Map(self.split_params)
 
 
 def get_params(ws_root):
@@ -50,3 +48,5 @@ def get_params(ws_root):
 
 if __name__ == "__main__":
     ParamLoader("1")
+
+# params need to be saved somewhere
