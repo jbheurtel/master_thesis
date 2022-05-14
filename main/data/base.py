@@ -15,6 +15,7 @@ def load_data_to_workspace(workspace_root):
     conf = get_config()
 
 
+
 def refactor_annotations(annotations_path):
     try:
         print("refactoring annotations")
@@ -113,5 +114,3 @@ def build_tf_records(data_root, images_root, split_params: dict, label_map):
 #     ws_model_config_path = os.path.join(models_fldr_ws, model_config_file)
 #     shutil.copyfile(proj_model_config_path, ws_model_config_path)
 #     return ws_model_config_path
-
-
