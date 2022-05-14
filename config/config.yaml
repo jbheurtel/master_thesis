@@ -1,0 +1,7 @@
+paths:
+  data_fldr: '/Users/jbheurtel/Desktop/MT2/dataset/'
+  cvat: '/Users/jbheurtel/Desktop/MT2/dataset/cvat'
+  records: '/Users/jbheurtel/Desktop/MT2/dataset/records'
+  ws: '/Users/jbheurtel/Desktop/MT2_WS'
+  param_file: '/Users/jbheurtel/Desktop/MT2/main/parameters/param.xls'
+  models : '/Users/jbheurtel/Desktop/MT2/main/model'
