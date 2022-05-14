@@ -1,8 +1,8 @@
-import collections
-
 import xmltodict
 
-from main.data.util import Map, fmt_proj
+from toolbox.util import Map
+
+from main.data.util import fmt_proj
 
 
 def parse_img(img):
@@ -32,7 +32,7 @@ def parse_img(img):
                 d_image.objects.ymins.append(fmt_proj(b["@ytl"]))
                 d_image.objects.ymaxs.append(fmt_proj(b["@ybr"]))
 
-        elif type(box) == collections.OrderedDict:
+        elif type(box) == dict:
             d_image.objects.labels.append(fmt_proj(box["@label"]))
             d_image.objects.xmins.append(fmt_proj(box['@xtl']))
             d_image.objects.xmaxs.append(fmt_proj(box["@xbr"]))

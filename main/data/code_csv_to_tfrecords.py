@@ -12,16 +12,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
 import io
-import pandas as pd
 import tensorflow as tf
 import sys
 
 sys.path.append(r"/Users/jbheurtel/Desktop/MT2/models/research")
 
 from PIL import Image
-from object_detection.utils import dataset_util
+from models.research.object_detection.utils import dataset_util
 from collections import namedtuple, OrderedDict
 
 flags = tf.compat.v1.flags

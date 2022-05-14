@@ -1,5 +1,7 @@
 import os
 import yaml
+import importlib_resources
+from pathlib import Path
 
 
 def fmt_proj(s: str):
@@ -25,16 +27,3 @@ def fmt_proj(s: str):
     return ns + extension
 
 
-class Map(dict):
-    """dot.notation access to dictionary attributes"""
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
-
-
-def get_config():
-    with open(os.path.join(os.getcwd(), "config/config.yaml")) as file:
-        configs = yaml.full_load(file)
-        map_configs = Map(configs)
-        map_configs.paths = Map(map_configs.paths)
-        return map_configs
