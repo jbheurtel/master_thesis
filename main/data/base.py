@@ -9,7 +9,9 @@ from main.data.util import fmt_proj
 from main.data.code_csv_to_tfrecords import create_tf_example
 from main.data.__init__ import __version__
 
+
 from toolbox.config import get_config
+from toolbox.logger import TxTLogger
 
 
 def transform_annotated_data():
@@ -24,14 +26,13 @@ def transform_annotated_data():
         os.mkdir(out_p)
 
     # 1. getting the annotated data
-    for img_group in img_groups:
+    log = TxTLogger(out_p)
+    tasks = set(img_groups) - set(log.to_dict()["done"])
+    for img_group in tasks:
         input_dir = os.path.join(raws_p, img_group)
         output_dir = os.path.join(out_p, img_group)
-        if not os.path.exists(output_dir):
-            print("loading and transforming: " + img_group)
-            load_images(input_dir=input_dir, output_dir=output_dir)
-        else:
-            print("Skipping loading and transforming: " + img_group + " - already there")
+        load_images(input_dir=input_dir, output_dir=output_dir)
+        log.update("done", img_group)
 
 
 def load_images(input_dir, output_dir):

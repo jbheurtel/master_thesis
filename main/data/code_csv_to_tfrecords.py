@@ -19,7 +19,7 @@ import sys
 sys.path.append(r"/Users/jbheurtel/Desktop/MT2/models/research")
 
 from PIL import Image
-from models.research.object_detection.utils import dataset_util
+from research.object_detection.utils import dataset_util
 from collections import namedtuple, OrderedDict
 
 flags = tf.compat.v1.flags
@@ -32,6 +32,8 @@ flags.DEFINE_string('label', '', 'Name of class label')
 # and so on.
 flags.DEFINE_string('img_path', '', 'Path to images')
 FLAGS = flags.FLAGS
+
+
 
 
 # TO-DO replace this with label map
