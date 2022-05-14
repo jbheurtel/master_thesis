@@ -3,7 +3,7 @@ import argparse
 
 import yaml
 
-from config.config import get_paths
+from toolbox.config import get_paths
 from toolbox.util import Map
 
 from main.parameters.base import ParamLoader

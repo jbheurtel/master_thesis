@@ -1,6 +1,0 @@
-data:
-  non_annotated: "/Users/jean-baptisteheurtel/Main/university/masters/Thesis/01_data/01_non-annotated"
-  annotated: "/Users/jean-baptisteheurtel/Main/university/masters/Thesis/01_data/02_annotated"
-  annotated_transformed: "/Users/jean-baptisteheurtel/Main/university/masters/Thesis/01_data/03_annotated_transformed"
-ws: "/Users/jean-baptisteheurtel/Main/university/masters/Thesis/02_workspace"
-param: "/Users/jean-baptisteheurtel/Main/university/masters/Thesis/05_param/param"

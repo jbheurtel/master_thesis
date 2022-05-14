@@ -2,7 +2,7 @@ import pandas as pd
 
 from toolbox.util import Map
 
-from config.config import get_paths
+from toolbox.config import get_paths
 
 
 class ParamLoader(Map):

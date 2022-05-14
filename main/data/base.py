@@ -6,30 +6,42 @@ import yaml
 
 from main.data.code_xml_to_csv import xml_to_csv
 from main.data.code_csv_to_tfrecords import create_tf_example
-
 from main.data.__init__ import __version__
+
+from toolbox.config import get_config
 
 
 def transform_annotated_data():
+    # 0. configurations
+    conf = get_config()
+    raws_p = conf.data.annotated
+    out_p = os.path.join(conf.data.annotated_transformed, __version__)
+    img_groups = [x for x in os.listdir(raws_p) if not x.startswith('.')]
 
-    conf = get_config
-
-    fldr_raws = r"/Users/jean-baptisteheurtel/Main/university/masters/Thesis/1. data/annotated"
-    output_path = r"/Users/jean-baptisteheurtel/Main/university/masters/Thesis/1. data/annotated_transformed"
-
-    label_map_path = os.path.join(self.paths.data.root, "label_map.yaml")
-
-    for data_set in self.params.data_sets:
-        load_images(os.path.join(self.conf.paths.cvat, data_set), self.paths.data.root)
-
-    if self.params.group_flooded:
-        refactor_annotations(annotations_path)
-
-    build_label_map(annotations_path=annotations_path, dest_path=label_map_path)
-    build_tf_records(data_root=self.paths.data.root, images_root=self.paths.data.images,
-                     split_params=self.params.split_params, label_map=self.data["label_map"])
+    # 1. getting the annotated data
+    for img_group in img_groups:
+        input_dir = os.path.join(raws_p, img_group)
+        output_dir = os.path.join(out_p, img_group)
+        if not os.path.exists(output_dir):
+            print("loading and transforming: " + img_group)
+            load_images(input_dir=input_dir, output_dir=output_dir)
+        else:
+            print("Skipping loading and transforming: " + img_group + " - already there")
 
 
+def load_images(input_dir, output_dir):
+    xml_path = os.path.join(input_dir, "annotations.xml")
+    xml_df = xml_to_csv(xml_path)
+    imgs = set(xml_df.filename)
+
+    os.mkdir(output_dir)
+    csv_path = os.path.join(output_dir, "annotations.csv")
+    xml_df.to_csv(csv_path, index=None)
+
+    for img in imgs:
+        scr = os.path.join(input_dir, img)
+        dest = os.path.join(output_dir, img)
+        shutil.copyfile(scr, dest)
 
 
 def refactor_annotations(annotations_path):
@@ -95,22 +107,6 @@ def build_tf_records(data_root, images_root, split_params: dict, label_map):
         writer.close()
 
 
-def load_images(input_dir, ws_data_path):
-    xml_path = os.path.join(input_dir, "annotations.xml")
-    xml_df = xml_to_csv(xml_path)
-    imgs = set(xml_df.filename)
-
-    csv_name = "annotations.csv"
-    csv_path = os.path.join(ws_data_path, csv_name)
-    xml_df.to_csv(csv_path, index=None)
-
-    for img in imgs:
-        scr = os.path.join(input_dir, img)
-        dest = os.path.join(ws_data_path, "images", img)
-        shutil.copyfile(scr, dest)
-
-    print("adding: " + str(len(imgs)) + " new images to the dataset")
-
 # def parametrize_model_configs(self):
 #
 #     print("éiné")
@@ -146,3 +142,7 @@ def load_images(input_dir, ws_data_path):
 #     ws_model_config_path = os.path.join(models_fldr_ws, model_config_file)
 #     shutil.copyfile(proj_model_config_path, ws_model_config_path)
 #     return ws_model_config_path
+
+
+if __name__ == "__main__":
+    transform_annotated_data()
