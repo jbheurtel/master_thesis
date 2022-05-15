@@ -38,6 +38,23 @@ class ParamLoader:
         self.split_params = split_keys.set_index("key").loc[self.split_key].set_index("part")["value"].to_dict()
         self.split_params = {k: v / sum(self.split_params.values()) for k, v in self.split_params.items()}
 
+    def to_dict(self):
+        params = dict()
+        params["id"] = self.id
+        params["nickname"] = self.nickname
+        params["data_key"] = self.data_key
+        params["split_key"] = self.split_key
+        params["group_flooded"] = self.group_flooded
+        params["model"] = self.model
+        params["split_params"] = self.split_params
+        params["data_sets"] = self.data_sets
+        return params
+
+    def get_root(self):
+        conf = get_config()
+        return os.path.join(conf["ws"], self.nickname)
+
+
 
 def get_params(ws_root):
     param_path = os.path.join(ws_root, "params.yaml")

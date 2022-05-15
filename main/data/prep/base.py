@@ -39,6 +39,7 @@ def load_images(input_dir, output_dir):
 
     new_names = {i: fmt_proj(i) for i in xml_df.filename}
     xml_df.filename = xml_df.filename.apply(lambda x: new_names[x])
+    xml_df["source"] = os.path.basename(output_dir)
 
     os.mkdir(output_dir)
     csv_path = os.path.join(output_dir, "annotations.csv")
