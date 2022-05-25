@@ -11,36 +11,44 @@ from main.workflow.workspace import WorkSpace
 from main.parameters.base import ParamLoader
 
 from toolbox.config import get_config
-from toolbox.logger import TxTLogger
 
 
 def load_data_to_workspace(ws: WorkSpace):
-    ws_conf = ws.get_config()
-    main_conf = get_config()
+    conf = ws.get_config()
+    main_paths = get_config()
 
     # 1. Load Annotations
-    ants = load_annotations(main_data_fldr=main_conf["data"]["annotated_transformed"],
-                            img_groups=ws_conf["params"]["data_sets"])
+    ants = load_annotations(main_data_fldr=main_paths["data"]["annotated_transformed"],
+                            img_groups=conf["params"]["data_sets"])
 
-    ants_path = os.path.join(ws_conf["paths"]["data"]["root"], "annotations.csv")
+    ants_path = os.path.join(conf["paths"]["data"]["root"], "annotations.csv")
     ants.to_csv(ants_path)
 
     # 2. Refactor, if needed
-    if ws_conf["params"]["group_flooded"]:
+    if conf["params"]["group_flooded"]:
         refactor_annotations(ants_path)
 
     # 3. Build Label Map
     label_map = build_label_map(annotations=ants)
-    label_map_path = os.path.join(ws_conf["paths"]["data"]["root"], "label_map.yaml")
+
+    label_map_path = os.path.join(conf["paths"]["data"]["root"], "label_map.yaml")
     with open(label_map_path, "w") as file:
         yaml.dump(label_map, file)
 
+    label_map_path = label_map_path.replace(".yaml", ".pbtxt")
+    to_pbtxt(label_map=label_map, label_map_path=label_map_path)
+
     # 4. Build Records
     build_tf_records(annotations=ants,
-                     data_fldr=ws_conf["paths"]["data"]["root"],
-                     images_source_fldr=main_conf["data"]["annotated_transformed"],
-                     split_params=ws_conf["params"]["split_params"],
+                     data_fldr=conf["paths"]["data"]["root"],
+                     images_source_fldr=main_paths["data"]["annotated_transformed"],
+                     split_params=conf["params"]["split_params"],
                      label_map=label_map)
+
+    data_conf = dict()
+    data_conf["label_map"] = label_map
+    conf["data"] = data_conf
+    ws.save_configs(conf)
 
 
 def load_annotations(main_data_fldr, img_groups):
@@ -79,14 +87,15 @@ def build_label_map(annotations):
 
 def build_tf_records(annotations, data_fldr, images_source_fldr, split_params: dict, label_map):
     n = len(annotations)
-    
+
     n_train, n_val, n_test = (n * split_params["train"], n * split_params["validation"], n * split_params["test"])
     df_ants = annotations.sample(frac=1)
 
     data_dict = dict()
     data_dict["train"] = df_ants.take(range(round(n_train)), axis=0)
     data_dict["validation"] = df_ants.loc[set(df_ants.index) - set(data_dict["train"].index)].take(range(round(n_val)))
-    data_dict["test"] = df_ants.loc[set(df_ants.index) - set(data_dict["train"].index) - set(data_dict["validation"].index)]
+    data_dict["test"] = df_ants.loc[
+        set(df_ants.index) - set(data_dict["train"].index) - set(data_dict["validation"].index)]
 
     # Serialize csv
     for df_name, df in data_dict.items():
@@ -103,44 +112,23 @@ def build_tf_records(annotations, data_fldr, images_source_fldr, split_params: d
             writer.write(tf_example.SerializeToString())
         writer.close()
 
+
+def to_pbtxt(label_map, label_map_path):
+    lm_txt = list()
+    for k, v in label_map.items():
+        lm_txt.append('item {')
+        lm_txt.append(' id: ' + str(v))
+        lm_txt.append(' name: ' + '"' + k + '"')
+        lm_txt.append('}')
+        lm_txt.append('')
+    with open(label_map_path, "w") as f:
+        for line in lm_txt:
+            f.write(line)
+            f.write('\n')
+
+
 if __name__ == "__main__":
     params = ParamLoader("1")
     ws = WorkSpace(params)
     ws.initialize()
     load_data_to_workspace(ws)
-
-# def parametrize_model_configs(self):
-#
-#     print("éiné")
-#     self.configs = {
-#         'num_classes': len(self.data["label_map"].keys()),
-#         'feature_extractor_type': self.params.model,
-#         'batch_size': 6,
-#         'fine_tune_checkpoint_path': os.path.join(self.paths.model, self.params.model, "model", "checkpoint"),
-#         'fine_tune_checkpoint_type': "detection",
-#
-#         'train_record_path' : os.path.join(self.paths.data.root, "train.record"),
-#         'train_label_map_path': os.path.join(self.paths.data.root, "label_map.yaml"),
-#
-#         'test_record_path': os.path.join(self.paths.data.root, "test.record"),
-#         'test_label_map_path': os.path.join(self.paths.data.root, "label_map.yaml")
-#     }
-#
-#     config_file = os.path.join(self.conf.paths.models, self.params.model, "config_params.config.txt")
-#
-#     with open(config_file, 'r') as f:
-#         content = f.read()
-#         f.close()
-#
-#     content.close
-#     content.format(**self.configs)
-#
-#     )
-
-
-# def _copy_model_config(model_name, models_fldr_proj, models_fldr_ws):
-#     model_config_file = model_name + ".config"
-#     proj_model_config_path = os.path.join(models_fldr_proj, model_config_file)
-#     ws_model_config_path = os.path.join(models_fldr_ws, model_config_file)
-#     shutil.copyfile(proj_model_config_path, ws_model_config_path)
-#     return ws_model_config_path

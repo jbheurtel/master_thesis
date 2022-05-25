@@ -21,7 +21,8 @@ class WorkSpace:
         self._define_paths()
         self._build_root()
         self._build_fldr_structure()
-        self._save_configs()
+        self._init_configs()
+        self.save_configs(self.conf)
 
     def get_config(self):
         with open(self.conf_path) as file:
@@ -52,12 +53,14 @@ class WorkSpace:
                 os.mkdir(dir)
                 print("creating directory: " + dir)
 
-    def _save_configs(self):
+    def _init_configs(self):
         conf = dict()
         conf["params"] = self.params
         conf["paths"] = self.paths
         conf["root"] = self.root
+        self.conf = conf
 
+    def save_configs(self, conf):
         with open(self.conf_path , "w") as file:
             yaml.dump(conf, file)
 
