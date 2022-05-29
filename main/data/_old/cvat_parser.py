@@ -1,5 +1,3 @@
-import xmltodict
-
 from toolbox.util import Map
 
 from main.data.util import fmt_proj
