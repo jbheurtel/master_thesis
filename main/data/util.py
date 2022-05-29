@@ -1,7 +1,5 @@
+import zipfile
 import os
-import yaml
-import importlib_resources
-from pathlib import Path
 
 
 def fmt_proj(s: str):
@@ -27,3 +25,10 @@ def fmt_proj(s: str):
     return ns + extension
 
 
+def zipfolder(source, dest):
+    zipobj = zipfile.ZipFile(source + '.zip', 'w', zipfile.ZIP_DEFLATED)
+    rootlen = len(dest) + 1
+    for base, dirs, files in os.walk(dest):
+        for file in files:
+            fn = os.path.join(base, file)
+            zipobj.write(fn, fn[rootlen:])
