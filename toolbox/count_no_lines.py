@@ -32,6 +32,7 @@ def count_lines(start, lines=0, header=True, begin_start=None):
 
     return lines
 
+
 if __name__ == '__main__':
     conf = get_config()
     count_lines(os.path.join(conf["project"], "main"))
