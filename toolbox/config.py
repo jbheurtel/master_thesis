@@ -4,11 +4,14 @@ from toolbox.util import Map
 
 def get_config():
 
-    key_word = "Thesis"
+    key_main= "Thesis"
     paths = dict()
 
     cwd = os.getcwd()
-    paths["main"] = cwd[:(cwd.rfind(key_word) + len(key_word))]
+    paths["main"] = cwd[:(cwd.rfind(key_main) + len(key_main))]
+
+    key_proj = "project"
+    paths["project"] = cwd[:(cwd.rfind(key_proj) + len(key_proj))]
 
     subs = {i for i in os.listdir(paths["main"]) if i[2] == "_"}
     fldrs_main = {"".join([ch for ch in i if ch.isalpha()]).lower() : i for i in subs}
