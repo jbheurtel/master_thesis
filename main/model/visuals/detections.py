@@ -4,33 +4,13 @@ import numpy as np
 from PIL import Image
 
 from main.parameters.base import ParamLoader
-from main.model.visuals.shapes import Detection, DetectionSet, summarise_groups
+from main.model.visuals.shapes import DetectionSet, summarise_groups, get_detections_from_xml
 from main.model.visuals.vis import visualize
 
-
-from toolbox.config import get_config
 from toolbox.file_manipulation.file import XmlFile, File
+from toolbox.config import get_config
 
 
-def get_detections_from_xml(xml_file: XmlFile):
-    infos = xml_file.open()
-    detections = list()
-
-    if isinstance(infos["annotation"]["object"], list):
-        objects = infos["annotation"]["object"]
-    else:
-        objects = [infos["annotations"]["object"]]
-
-    for i in objects:
-        left = int(i["bndbox"]["xmin"])
-        right = int(i["bndbox"]["xmax"])
-        top = int(i["bndbox"]["ymax"])
-        bottom = int(i["bndbox"]["ymin"])
-        name = i["name"]
-        score = 1
-        detection = Detection(left, right, top, bottom, name, score)
-        detections.append(detection)
-    return detections
 
 
 if __name__ == '__main__':

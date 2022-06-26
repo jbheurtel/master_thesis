@@ -1,6 +1,6 @@
 import pandas as pd
-
 from typing import List
+from toolbox.file_manipulation.file import XmlFile, File
 
 
 class Detection:
@@ -95,6 +95,28 @@ def summarise_groups(groups):
             summary["damage_prop"] += round(i.area / summary["area"], 2)
         summary_list.append(summary)
     return summary_list
+
+
+def get_detections_from_xml(xml_file: XmlFile):
+    infos = xml_file.open()
+    detections = list()
+
+    if isinstance(infos["annotation"]["object"], list):
+        objects = infos["annotation"]["object"]
+    else:
+        objects = [infos["annotations"]["object"]]
+
+    for i in objects:
+        left = int(i["bndbox"]["xmin"])
+        right = int(i["bndbox"]["xmax"])
+        top = int(i["bndbox"]["ymax"])
+        bottom = int(i["bndbox"]["ymin"])
+        name = i["name"]
+        score = 1
+        detection = Detection(left, right, top, bottom, name, score)
+        detections.append(detection)
+    return detections
+
 
 
 if __name__ == "__main__":
