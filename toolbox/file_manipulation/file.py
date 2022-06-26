@@ -2,6 +2,7 @@ import os
 import shutil
 import errno
 from datetime import datetime
+import xmltodict
 
 
 class File:
@@ -45,7 +46,10 @@ class File:
             print("bad file name " + self.file_name)
 
     def move(self, new_dir):
-        new_path = os.path.join(new_dir, self.file_name + self.extension)
+        if self.file_name == None:
+            print("spot")
+        else:
+            new_path = os.path.join(new_dir, self.file_name + self.extension)
         count = 1
         while os.path.exists(new_path):
             new_path = os.path.join(new_dir, self.file_name + "_" + str(count) + self.extension)
@@ -64,6 +68,15 @@ class File:
 
     def delete(self):
         os.remove(self.path)
+
+
+class XmlFile(File):
+
+    def open(self):
+        assert self.extension == ".xml"
+        fileptr = open(self.path, "r")
+        xml_content = fileptr.read()
+        return xmltodict.parse(xml_content)
 
 
 if __name__ == '__main__':

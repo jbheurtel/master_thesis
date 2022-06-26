@@ -28,7 +28,6 @@ class ParamLoader:
         self.data_key = param_line.loc["data_key"]
         self.split_key = param_line.loc["split_key"]
         self.label_key = None if param_line.loc["label_key"] == 0 else param_line.loc["label_key"]
-        self.model = param_line.loc["model"]
 
         # interpreting keys
         dsets = data_keys.loc[self.data_key]["dataset"]
@@ -52,7 +51,6 @@ class ParamLoader:
         params["data_key"] = self.data_key
         params["split_key"] = self.split_key
         params["label_key"] = self.label_key
-        params["model"] = self.model
         params["split_params"] = self.split_params
         params["data_sets"] = self.data_sets
         params["label_map_dict"] = self.label_map_dict

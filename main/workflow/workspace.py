@@ -5,6 +5,7 @@ import yaml
 
 from toolbox.config import get_config
 from toolbox.util import Map, NestedDictValues
+from toolbox.file_manipulation.file import File
 
 from main.parameters.base import ParamLoader
 
@@ -59,11 +60,12 @@ class WorkSpace:
     def import_data(self):
 
         for img_set in self.params["data_sets"]:
-            source = os.path.join(self.conf.data_annotated, img_set)
-            destination = os.path.join(self.p["data_imports"], img_set)
-            print("copying: " + img_set)
-            shutil.copytree(source, destination)
-            print("finished copying: " + img_set)
+            print("copying transformed: " + img_set)
+            source = os.path.join(self.conf.data_annotated_transformed, img_set)
+            files_in_source = [File(os.path.join(source, i)) for i in os.listdir(source)]
+            for file in files_in_source:
+                file.copy(self.p["data_imports"])
+            print("finished copying transformed: " + img_set)
 
     def _build_root(self):
         if not os.path.exists(self.p["root"]):

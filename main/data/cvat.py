@@ -11,7 +11,8 @@ import xmltodict
 
 from main.data.util import fmt_proj
 
-from toolbox.file import File
+from toolbox.file_manipulation.file import File
+from toolbox.config import get_config
 
 
 class CvatExport:
@@ -26,7 +27,7 @@ class CvatExport:
         self.files = [File(os.path.join(self.path, i)) for i in os.listdir(self.path)]
         self.images = list(filter(lambda x: x.extension in [".jpg", ".png"], self.files))
         self.cvat_annotations = os.path.join(self.path, "annotations.xml")
-        self.annotations = set(filter(lambda x: x.extension == [".xml"], self.files))
+        self.annotations = [i for i in self.files if i.extension == ".xml"]
         self.image_formats = set([i.extension for i in self.images])
         self._load_tf_images()
 
@@ -161,6 +162,27 @@ class CvatExport:
 
         self.__init__(self.path)
 
+    def get_label_summary(self):
+        all_labels = dict()
+        xmls = self.annotations
+        xml_paths = [i.path for i in xmls]
+        for i in xml_paths:
+            labels = get_labels_from_xml(i)
+
+            for k, v in labels.items():
+                if k not in all_labels.keys():
+                    all_labels[k] = v
+                else:
+                    all_labels[k] += v
+        return all_labels
+
+    def save_label_map(self):
+        labels = self.get_label_summary()
+        label_map = {i : list(labels.keys())[i] for i in range(len(labels))}
+
+        with open(os.path.join(self.path, "label_map.yaml"), "w") as f:
+            yaml.dump(label_map, f)
+
     def split_data(self, train=1, test=0, validation=0):
 
         split_params = {"train": train, "test": test, "validation": validation}
@@ -181,6 +203,12 @@ class CvatExport:
             os.mkdir(data_group_path)
             for tf_image in v:
                 tf_image.move(data_group_path)
+
+    def move_splits(self, dest_fldr):
+        for folder in ["train", "test", "validate", "label_map.yaml"]:
+            source = os.path.join(self.path, folder)
+            dest = os.path.join(dest_fldr, folder)
+            shutil.move(source, dest)
 
 
 def png_to_jpg(file: File):
@@ -260,3 +288,47 @@ class AnnotatedImageTF:
     def to_jpg(self):
         png_to_jpg(self.img)
         replace_in_xml(self.annotations, {self.img.extension: ".jpg"})
+
+
+def transform_dataset(d_set):
+    conf = get_config()
+
+    data_source = conf["data_annotated"]
+    data_dest = conf["data_annotated_transformed"]
+
+    with open(os.path.join(data_dest, "logger.yaml")) as f:
+        logger = yaml.full_load(f)
+
+        if logger.get(d_set) != "done":
+            print("transforming: " + d_set)
+            cvat_dset = CvatExport(os.path.join(data_source, d_set))
+            cvat_dset.move(data_dest)
+            cvat_dset.split_annotations()
+            cvat_dset.to_jpg()
+
+            logger[d_set] = "done"
+            with open(os.path.join(data_dest, "logger.yaml"), "w") as f:
+                yaml.dump(logger, f)
+        else:
+            print("not transforming: " + d_set, " - already done")
+
+
+def get_labels_from_xml(xml_path):
+
+    fileptr = open(xml_path, "r")
+
+    xml_content = fileptr.read()
+    my_ordered_dict = xmltodict.parse(xml_content)
+
+    labels = dict()
+
+    object = my_ordered_dict["annotation"]["object"]
+    objects = object if isinstance(object, list) else [object]
+
+    for i in objects:
+        if i["name"] not in labels.keys():
+            labels[i["name"]] = 1
+        else:
+            labels[i["name"]] += 1
+
+    return labels
