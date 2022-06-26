@@ -119,7 +119,7 @@ def summarise_groups(groups):
             component["area_prop"] = round(i.area / summary["area"], 2)
             summary["components"].append(component)
             summary["damage_prop"] += round(i.area / summary["area"], 2)
-        summary["damage_prop"] = max(summary["damage_prop"], 1)
+        summary["damage_prop"] = min(summary["damage_prop"], 1)
         summary_dict[k] = summary
     return summary_dict
 
