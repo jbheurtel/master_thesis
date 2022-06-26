@@ -48,6 +48,14 @@ class Detection:
             if k == self.name:
                 self.name = v
 
+    def resize(self, factor):
+        self.left = round(self.left * factor)
+        self.right = round(self.right * factor)
+        self.top = round(self.top * factor)
+        self.bottom = round(self.bottom * factor)
+        self.area = self._area()
+        self.box = (self.left, self.right, self.top, self.bottom)
+
 
 class DetectionSet:
 
@@ -121,7 +129,7 @@ def get_detections_from_xml(xml_file: XmlFile):
     if isinstance(infos["annotation"]["object"], list):
         objects = infos["annotation"]["object"]
     else:
-        objects = [infos["annotations"]["object"]]
+        objects = [infos["annotation"]["object"]]
 
     for i in objects:
         left = int(i["bndbox"]["xmin"])
@@ -182,10 +190,18 @@ if __name__ == '__main__':
     conf = get_config()
     params = ParamLoader('6')
 
+    image = Image.open(image_path).convert('RGB')
+
+    original_dims = (image.height, image.width)
+    image.thumbnail((512, 512), Image.ANTIALIAS)
+    final_dims = (image.height, image.width)
+
+    resize_factor = np.array((final_dims[0]/original_dims[0], final_dims[1]/original_dims[1])).mean()
+
     for d in detections:
         d.relabel(params.label_map_dict)
+        d.resize(resize_factor)
 
-    image = Image.open(image_path).convert('RGB')
     image_np_1 = np.asarray(image)
     image_np = visualize(image_np_1, detections)
 
