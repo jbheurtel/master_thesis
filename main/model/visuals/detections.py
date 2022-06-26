@@ -1,7 +1,12 @@
 import os
 
+import numpy as np
+from PIL import Image
+
 from main.parameters.base import ParamLoader
 from main.model.visuals.shapes import Detection, DetectionSet, summarise_groups
+from main.model.visuals.vis import visualize
+
 
 from toolbox.config import get_config
 from toolbox.file_manipulation.file import XmlFile, File
@@ -47,10 +52,6 @@ if __name__ == '__main__':
 
     for d in detections:
         d.relabel(params.label_map_dict)
-
-    from main.model.tf_od.vis import visualize
-    from PIL import Image
-    import numpy as np
 
     image = Image.open(image_path).convert('RGB')
     image_np_1 = np.asarray(image)

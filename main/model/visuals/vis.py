@@ -1,5 +1,5 @@
 import numpy as np
-from main.model.visuals.detections import Detection
+from main.model.visuals.shapes import Detection
 from typing import List
 import cv2
 
@@ -17,7 +17,8 @@ def visualize(
         margin=5,
         row_size=15,
         font_size=2,
-        font_thickness=2
+        font_thickness=2,
+        rectangle_thickness=1
 ) -> np.ndarray:
     for detection in detections:
         # Draw bounding_box
@@ -26,7 +27,7 @@ def visualize(
         # area = '{:0.2e}'.format(detection.area)
         area = detection.area
         item = detection.name
-        cv2.rectangle(image, start_point, end_point, _COLOR_PALETTE[item], 3)
+        cv2.rectangle(image, start_point, end_point, _COLOR_PALETTE[item], rectangle_thickness)
 
         # Draw label and score
         class_name = detection.name
