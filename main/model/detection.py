@@ -110,8 +110,10 @@ def summarise_groups(groups):
         summary["score"] = round(k.score, 2)
         summary["components"] = list()
         summary["damage_prop"] = 0
+        summary["obj"] = k
         for i in v:
             component = dict()
+            component["obj"] = i
             component["name"] = i.name
             component["area"] = i.area
             component["score"] = round(i.score, 2)
