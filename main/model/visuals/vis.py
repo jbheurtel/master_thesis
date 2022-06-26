@@ -18,7 +18,7 @@ def visualize(
         row_size=15,
         font_size=2,
         font_thickness=2,
-        rectangle_thickness=1
+        rectangle_thickness=2
 ) -> np.ndarray:
     for detection in detections:
         # Draw bounding_box
