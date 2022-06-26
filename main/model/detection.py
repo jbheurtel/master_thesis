@@ -102,7 +102,7 @@ class DetectionSet:
 
 
 def summarise_groups(groups):
-    summary_list = list()
+    summary_dict = dict()
     for k, v in groups.items():
         summary = dict()
         summary["item"] = k.name
@@ -110,7 +110,6 @@ def summarise_groups(groups):
         summary["score"] = round(k.score, 2)
         summary["components"] = list()
         summary["damage_prop"] = 0
-        summary["obj"] = k
         for i in v:
             component = dict()
             component["obj"] = i
@@ -120,8 +119,8 @@ def summarise_groups(groups):
             component["area_prop"] = round(i.area / summary["area"], 2)
             summary["components"].append(component)
             summary["damage_prop"] += round(i.area / summary["area"], 2)
-        summary_list.append(summary)
-    return summary_list
+        summary_dict[k] = summary
+    return summary_dict
 
 
 def get_detections_from_xml(xml_file: XmlFile):
