@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import cv2
 from PIL import Image
+from shapely.geometry import Polygon
+
 
 from main.parameters.base import ParamLoader
 
@@ -28,20 +30,9 @@ class Detection:
         self.bottom = bottom
         self.name = name
         self.score = score
-        self.area = self._area()
         self.box = (left, right, top, bottom)
-
-
-    def _area(self):
-        return (self.right - self.left)*(self.top - self.bottom)
-
-    def intersect(self, shape_2):
-        w = max(min(self.right, shape_2.right) - max(self.left, shape_2.left), 0)
-        h = max(min(self.top, shape_2.top) - max(self.bottom, shape_2.bottom, 0), 0)
-        return w * h
-
-    def union(self, shape_2):
-        return self.area + shape_2.area - self.intersect(shape_2)
+        self.shape = Polygon([(left, bottom), (right, bottom), (right, top), (left, top)])
+        self.area = self.shape.area
 
     def relabel(self, relabel_dictionary):
         for k, v in relabel_dictionary.items():
@@ -49,12 +40,14 @@ class Detection:
                 self.name = v
 
     def resize(self, factor):
-        self.left = round(self.left * factor)
-        self.right = round(self.right * factor)
-        self.top = round(self.top * factor)
-        self.bottom = round(self.bottom * factor)
-        self.area = self._area()
-        self.box = (self.left, self.right, self.top, self.bottom)
+        self.__init__(
+            left=round(self.left * factor),
+            right=round(self.right * factor),
+            top=round(self.top * factor),
+            bottom=round(self.bottom * factor),
+            name=self.name,
+            score=self.score
+        )
 
 
 class DetectionSet:
@@ -89,7 +82,7 @@ class DetectionSet:
         for dmg in damages:
             candidates = {}
             for house in houses:
-                i = dmg.intersect(house)
+                i = dmg.shape.intersection(house.shape).area
                 candidates[house] = i
 
             closest = max(candidates, key=candidates.get)
@@ -113,11 +106,20 @@ def summarise_groups(groups):
             component["obj"] = i
             component["name"] = i.name
             component["area"] = i.area
-            component["score"] = round(i.score, 2)
-            component["area_prop"] = round(i.area / summary["area"], 2)
+            component["score"] = round(i.score, 4)
+            component["area_prop"] = round(i.area / summary["area"], 4)
             summary["components"].append(component)
-            summary["damage_prop"] += round(i.area / summary["area"], 2)
-        summary["damage_prop"] = min(summary["damage_prop"], 1)
+
+        if len(summary["components"])>0:
+            dmg = summary["components"][0]["obj"].shape
+
+            for i in summary["components"]:
+                dmg = dmg.union(i["obj"].shape)
+
+            summary["dmg_prop"] = round(dmg.area/summary["area"], 4)
+        else:
+            summary["dmg_prop"] = 0
+
         summary_dict[k] = summary
     return summary_dict
 
@@ -181,7 +183,7 @@ if __name__ == '__main__':
     all_paths = [os.path.join(main, i) for i in os.listdir(main)]
     all_xml = [i for i in all_paths if File(i).extension == ".xml"]
 
-    XML_PATH = all_xml[2]
+    XML_PATH = all_xml[3]
 
     xml_file = XmlFile(XML_PATH)
     image_path = XML_PATH.replace(".xml", ".png")
@@ -203,7 +205,7 @@ if __name__ == '__main__':
         d.resize(resize_factor)
 
     image_np_1 = np.asarray(image)
-    image_np = visualize(image_np_1, detections)
+    image_np = visualize(image_np_1, detections, margin=5, font_size=0.5, font_thickness=1)
 
     image = Image.fromarray(image_np)
     image.show()
@@ -213,5 +215,6 @@ if __name__ == '__main__':
     DX.summarise()
     groups = DX.form_groups()
     groups_summary = summarise_groups(groups)
-    for i in groups_summary:
+
+    for i in groups_summary.values():
         print(i)
