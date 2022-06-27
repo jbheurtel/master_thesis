@@ -116,9 +116,7 @@ def summarise_groups(groups):
             for i in summary["components"]:
                 dmg = dmg.union(i["obj"].shape)
 
-            summary["dmg_prop"] = round(dmg.area/summary["area"], 4)
-        else:
-            summary["dmg_prop"] = 0
+            summary["damage_prop"] = round(dmg.area/summary["area"], 4)
 
         summary_dict[k] = summary
     return summary_dict
