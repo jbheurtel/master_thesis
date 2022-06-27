@@ -93,9 +93,7 @@ class DetectionSet:
                 candidates[house] = i
 
             closest = max(candidates, key=candidates.get)
-            if candidates[closest] / dmg.area <= 0.5:
-                print("cannot securely allocate damage to house")
-            else:
+            if candidates[closest] / dmg.area > 0.5:
                 groups[closest].append(dmg)
 
         return groups
