@@ -1,37 +1,52 @@
 # get annotations from makespace
 
 import os
-import yaml
-
 import shutil
+
 from toolbox.config import get_config
 from toolbox.file_manipulation.file import File
+
+from main.parameters.base import ParamLoader
+from main.workflow.workspace import WorkSpace
 from main.data.cvat import CvatExport
 
-# get_config() => to be fixed
-
+from main.data.util import DataTransformLogger
 
 if __name__ == "__main__":
-    data_set = "hurricanes_2"
 
     conf = get_config()
-    data_set_path = os.path.join(conf.data_annotated, data_set)
+    params = ParamLoader('8')
+    ws = WorkSpace(params, reset=True)
 
-    file_names = os.listdir(data_set_path)
-    files = [File(os.path.join(data_set_path, i)) for i in file_names]
-    xml_files = {i.file_name: i for i in files if i.extension == ".xml"}
-    images = {i.file_name: i for i in files if i.extension in [".jpg", ".png"]}
-    to_delete = set(images.keys() - xml_files.keys())
+    a = ws.params.data_sets
+    a.remove("residential_areas")
 
-    dest_path = os.path.join(conf.data_annotated_transformed, data_set)
-    shutil.copytree(data_set_path, dest_path)
+    log = DataTransformLogger()
 
-    main_dset = CvatExport(dest_path)
-    main_dset.to_jpg()
+    for d_set in ws.params.data_sets:
 
-    with open(os.path.join(conf.data_annotated_transformed, "logger.yaml")) as f:
-        logger = yaml.full_load(f)
+        if log.content.get(d_set) != "done":
 
-    logger[data_set] = "done"
-    with open(os.path.join(conf.data_annotated_transformed, "logger.yaml"), "w") as f:
-        yaml.dump(logger, f)
+            data_set_path = os.path.join(conf.data_annotated, d_set)
+            dest_path = os.path.join(conf.data_annotated_transformed, d_set)
+
+            if os.path.exists(dest_path):
+                shutil.rmtree(dest_path)
+
+            file_names = os.listdir(data_set_path)
+            files = [File(os.path.join(data_set_path, i)) for i in file_names]
+            xml_files = {i.file_name: i for i in files if i.extension == ".xml"}
+            images = {i.file_name: i for i in files if i.extension in [".jpg", ".png"]}
+            to_delete = set(images.keys() - xml_files.keys())
+            shutil.copytree(data_set_path, dest_path)
+
+            main_dset = CvatExport(dest_path)
+            main_dset.to_jpg()
+
+            log.content[d_set] = "done"
+            log.save()
+
+            print("TRANSFORMED:", d_set)
+
+        else:
+            print("NOT TRANSFORMING:", d_set, "- already done!")

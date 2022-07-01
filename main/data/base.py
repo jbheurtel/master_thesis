@@ -13,7 +13,7 @@ from main.workflow.workspace import WorkSpace
 if __name__ == '__main__':
 
     conf = get_config()
-    params = ParamLoader('6')
+    params = ParamLoader('10')
     ws = WorkSpace(params, reset=True)
 
     for d_set in ws.params.data_sets:

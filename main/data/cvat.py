@@ -8,8 +8,7 @@ import yaml
 
 import xmltodict
 
-
-from main.data.util import fmt_proj
+from main.data.util import fmt_proj, DataTransformLogger
 
 from toolbox.file_manipulation.file import File
 from toolbox.config import get_config
@@ -178,7 +177,7 @@ class CvatExport:
 
     def save_label_map(self):
         labels = self.get_label_summary()
-        label_map = {i : list(labels.keys())[i] for i in range(len(labels))}
+        label_map = {i: list(labels.keys())[i] for i in range(len(labels))}
 
         with open(os.path.join(self.path, "label_map.yaml"), "w") as f:
             yaml.dump(label_map, f)
@@ -186,7 +185,7 @@ class CvatExport:
     def split_data(self, train=1, test=0, validation=0):
 
         split_params = {"train": train, "test": test, "validation": validation}
-        split_params = {k: v/sum(split_params.values()) for k, v in split_params.items()}
+        split_params = {k: v / sum(split_params.values()) for k, v in split_params.items()}
 
         df = pd.Series(self.tf_images).sample(frac=1).reset_index(drop=True)
         n_train = round(len(df) * split_params["train"])
@@ -296,25 +295,27 @@ def transform_dataset(d_set):
     data_source = conf["data_annotated"]
     data_dest = conf["data_annotated_transformed"]
 
-    with open(os.path.join(data_dest, "logger.yaml")) as f:
-        logger = yaml.full_load(f)
+    log = DataTransformLogger()
 
-        if logger.get(d_set) != "done":
-            print("transforming: " + d_set)
-            cvat_dset = CvatExport(os.path.join(data_source, d_set))
-            cvat_dset.move(data_dest)
-            cvat_dset.split_annotations()
-            cvat_dset.to_jpg()
+    if log.content.get(d_set) != "done":
 
-            logger[d_set] = "done"
-            with open(os.path.join(data_dest, "logger.yaml"), "w") as f:
-                yaml.dump(logger, f)
-        else:
-            print("not transforming: " + d_set, " - already done")
+        dest = os.path.join(data_dest, d_set)
+        if os.path.exists(dest):
+            shutil.rmtree(dest)
+
+        cvat_dset = CvatExport(os.path.join(data_source, d_set))
+        cvat_dset.move(data_dest)
+        cvat_dset.split_annotations()
+        cvat_dset.to_jpg()
+
+        log.content[d_set] = "done"
+        log.save()
+
+    else:
+        print("not transforming: " + d_set, " - already done")
 
 
 def get_labels_from_xml(xml_path):
-
     fileptr = open(xml_path, "r")
 
     xml_content = fileptr.read()
@@ -322,7 +323,10 @@ def get_labels_from_xml(xml_path):
 
     labels = dict()
 
-    object = my_ordered_dict["annotation"]["object"]
+    try:
+        object = my_ordered_dict["annotation"]["object"]
+    except:
+        print("omg")
     objects = object if isinstance(object, list) else [object]
 
     for i in objects:

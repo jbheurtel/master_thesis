@@ -1,7 +1,10 @@
 import zipfile
 import os
 
+import yaml
 import xmltodict
+
+from toolbox.config import get_config
 
 
 def fmt_proj(s: str):
@@ -69,3 +72,24 @@ def get_label_summary(xml_file_paths: list):
                 all_labels[k] += v
     return all_labels
 
+
+class DataTransformLogger:
+
+    def __init__(self):
+        conf = get_config()
+        self.path = os.path.join(conf.data_annotated_transformed, "logger.yaml")
+        if not os.path.exists(self.path):
+            self.content = dict()
+            with open(self.path, "w") as f:
+                yaml.dump(self.content, f)
+        else:
+            self.content = self.get()
+
+    def get(self):
+        with open(self.path) as f:
+            d = yaml.full_load(f)
+        return d
+
+    def save(self):
+        with open(self.path, "w") as f:
+            yaml.dump(self.content, f)
