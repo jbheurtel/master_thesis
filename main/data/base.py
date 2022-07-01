@@ -28,7 +28,7 @@ if __name__ == '__main__':
     main_cvat_dset.split_data(**ws.params["split_params"])
     main_cvat_dset.move_splits(ws.p.data_transformed)
 
-    gdrive_path_fldr = os.path.join(r"/Volumes/GoogleDrive/My Drive/03_University/MasterThesis", ws.name)
+    gdrive_path_fldr = os.path.join(r"/Volumes/GoogleDrive/My Drive/03_University/MasterThesis/data", ws.name)
     gdrive_path_zip = gdrive_path_fldr + ".zip"
 
     if os.path.exists(gdrive_path_zip):
