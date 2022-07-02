@@ -55,6 +55,13 @@ class Detection:
         )
 
 
+def multi_area(shapes):
+    dmg = shapes[0]
+    for i in shapes:
+        dmg = dmg.union(i)
+    return dmg.area
+
+
 class DamageGroup:
     def __init__(self, groups):
         self.groups = groups
@@ -100,16 +107,26 @@ class DamageGroup:
 
                 for grp_name, grp_members in groups.items():
                     if v:
-                        dmg = grp_members[0]
-                        for i in grp_members:
-                            dmg = dmg.union(i)
-                            area = round(dmg.area / v["area"], 4)
+                        area = round(multi_area(grp_members)/v["area"], 4)
                     else:
                         area = 0
                     v[grp_name] = area
                     summary_dict[k] = v
 
+        else:
+            for k, v in summary_dict.items():
+                damages = [dmg["obj"].shape for dmg in v["damages"]]
+                if damages:
+                    damages_area = multi_area(damages)
+                    area_prop = round(damages_area / v["area"], 4)
+                else:
+                    area_prop = 0
+
+                summary_dict[k]["damage_prop"] = area_prop
         return summary_dict
+
+
+
 
     #
     # def summarise_by(self, damage_type="damage"):
@@ -270,6 +287,6 @@ if __name__ == '__main__':
     groups = DX.form_groups()
     # groups.summarise_groups()
     # groups.summarise_groups("damage")
-    res = groups.summarise_groups("damage_type")
+    res = groups.summarise_groups()
     for k, v in res.items():
         print(k, ":", v)
