@@ -19,7 +19,8 @@ _COLOR_PALETTE = {
     "destroyed_house": (64, 64, 64),
     "roof_destruction": (255, 0, 0),
     "roof_damage": (255, 128, 0),
-    "wall_damage": (128, 0, 255)
+    "wall_damage": (128, 0, 255),
+    "wall_destruction": (255, 0, 0)
 }
 
 STRUCTURES = ["house", "destroyed_house", "flooded_house"]
@@ -270,9 +271,5 @@ if __name__ == '__main__':
     # groups.summarise_groups()
     # groups.summarise_groups("damage")
     res = groups.summarise_groups("damage_type")
-    for k,v in res.items():
+    for k, v in res.items():
         print(k, ":", v)
-
-
-
-
