@@ -126,33 +126,6 @@ class DamageGroup:
         return summary_dict
 
 
-
-
-    #
-    # def summarise_by(self, damage_type="damage"):
-    #
-    #         summary_dict = self.summarise_groups()
-    #
-    #         if damage_type == "damages":
-    #             groups["damages"] = summary["damages"]
-    #         else:
-    #             for k, v in groups["damages"].items():
-    #                 if v["name"] not in groups.keys():
-    #                     groups[v["name"]] = list()
-    #                 groups[v["name"]].append(v)
-    #
-    #         if group:
-    #             def summarise_group(group):
-    #                 dmg = group[0]["obj"].shape
-    #                 for i in group:
-    #                     dmg = dmg.union(i["obj"].shape)
-    #
-    #                 summary["damage_prop"] = round(dmg.area / summary["area"], 4)
-    #
-    #         summary_dict[k] = summary
-    #     return summary_dict
-
-
 class DetectionSet:
 
     def __init__(self, detections: List[Detection]):
@@ -277,8 +250,6 @@ if __name__ == '__main__':
         # d.relabel(params.label_map_dict)
         d.resize(resize_factor)
 
-    detections = [detections[-2]]
-
     image_np_1 = np.asarray(image)
     image_np = visualize(image_np_1, detections, rectangle_thickness=3)  # margin=5, font_size=0.5, font_thickness=1)
 
@@ -291,6 +262,6 @@ if __name__ == '__main__':
     groups = DX.form_groups()
     # groups.summarise_groups()
     # groups.summarise_groups("damage")
-    res = groups.summarise_groups()
+    res = groups.summarise_groups("damage_type")
     for k, v in res.items():
         print(k, ":", v)
