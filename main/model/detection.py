@@ -182,15 +182,17 @@ class DetectionSet:
                 damages.append(i)
 
         groups = {h: [] for h in houses}
-        for dmg in damages:
-            candidates = {}
-            for house in houses:
-                i = dmg.shape.intersection(house.shape).area
-                candidates[house] = i
 
-            closest = max(candidates, key=candidates.get)
-            if candidates[closest] / dmg.area > 0.5:
-                groups[closest].append(dmg)
+        if groups:
+            for dmg in damages:
+                candidates = {}
+                for house in houses:
+                    i = dmg.shape.intersection(house.shape).area
+                    candidates[house] = i
+
+                closest = max(candidates, key=candidates.get)
+                if candidates[closest] / dmg.area > 0.5:
+                    groups[closest].append(dmg)
 
         return DamageGroup(groups)
 
@@ -274,6 +276,8 @@ if __name__ == '__main__':
     for d in detections:
         # d.relabel(params.label_map_dict)
         d.resize(resize_factor)
+
+    detections = [detections[-2]]
 
     image_np_1 = np.asarray(image)
     image_np = visualize(image_np_1, detections, rectangle_thickness=3)  # margin=5, font_size=0.5, font_thickness=1)
