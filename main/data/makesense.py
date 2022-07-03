@@ -19,7 +19,6 @@ if __name__ == "__main__":
     ws = WorkSpace(params, reset=True)
 
     a = ws.params.data_sets
-    a.remove("residential_areas")
 
     log = DataTransformLogger()
 

@@ -27,7 +27,8 @@ def get_config():
     paths["workspace"] = os.path.join(paths["main"], fldrs_main["workspace"])
     paths["model"] = os.path.join(paths["main"], fldrs_main["pretrainedmodels"])
     paths["param"] = os.path.join(paths["main"], fldrs_main["param"])
-
+    paths["results"] = os.path.join(paths["main"], fldrs_main["results"])
+    paths["gdrive"] = "/Volumes/GoogleDrive/My Drive/03_University/MasterThesis"
     conf = Map(paths)
     return conf
 
