@@ -5,7 +5,7 @@ labels_dict = {
         "roof_damage",
         "roof_destruction",
         "wall_damage",
-        "wall_destruction"
+        "wall_destruction",
         "total_destruction"],
     "mgrain": [
         "house",

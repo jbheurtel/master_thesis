@@ -19,8 +19,9 @@ _COLOR_PALETTE = {
     "destroyed_house": (64, 64, 64),
     "roof_destruction": (255, 0, 0),
     "roof_damage": (255, 128, 0),
-    "wall_damage": (128, 0, 255),
-    "wall_destruction": (255, 0, 0)
+    "wall_damage": (51, 153, 255),
+    "wall_destruction": (102, 0, 204),
+    "total_destruction" : (128, 64, 64)
 }
 
 STRUCTURES = ["house", "destroyed_house", "flooded_house"]
@@ -229,7 +230,7 @@ if __name__ == '__main__':
     all_paths = [os.path.join(main, i) for i in os.listdir(main)]
     all_xml = [i for i in all_paths if File(i).extension == ".xml"]
 
-    XML_PATH = all_xml[15]
+    XML_PATH = all_xml[6]
 
     xml_file = XmlFile(XML_PATH)
     image_path = XML_PATH.replace(".xml", ".png")
@@ -265,3 +266,17 @@ if __name__ == '__main__':
     res = groups.summarise_groups("damage_type")
     for k, v in res.items():
         print(k, ":", v)
+
+
+
+import pandas as pd
+a = os.path.join("/Users/jean-baptisteheurtel/Main/2022/02_university/02_thesis/Thesis/10_results/mgrain/train", "res_mgrain_train_04.csv")
+b = pd.read_csv(a)
+
+len(set(b.img_name))
+
+a = os.path.join("/Users/jean-baptisteheurtel/Main/2022/02_university/02_thesis/Thesis/10_results/mgrain/train", "res_mgrain_train_03.csv")
+b = pd.read_csv(a)
+
+len(set(b.img_name))
+
