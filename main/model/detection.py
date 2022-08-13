@@ -266,17 +266,3 @@ if __name__ == '__main__':
     res = groups.summarise_groups("damage_type")
     for k, v in res.items():
         print(k, ":", v)
-
-
-
-import pandas as pd
-a = os.path.join("/Users/jean-baptisteheurtel/Main/2022/02_university/02_thesis/Thesis/10_results/mgrain/train", "res_mgrain_train_04.csv")
-b = pd.read_csv(a)
-
-len(set(b.img_name))
-
-a = os.path.join("/Users/jean-baptisteheurtel/Main/2022/02_university/02_thesis/Thesis/10_results/mgrain/train", "res_mgrain_train_03.csv")
-b = pd.read_csv(a)
-
-len(set(b.img_name))
-
