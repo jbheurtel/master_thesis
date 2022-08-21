@@ -50,7 +50,7 @@ def get_scores(model_name, sub):
 
     assert sub in ["train", "val"]
 
-    data_folder = os.path.join(res_fldr, model_name, sub)
+    data_folder = os.path.join(res_fldr, model_name, "final", sub)
     data_folder = [os.path.join(data_folder, i) for i in os.listdir(data_folder)]
     cf_list = [i for i in data_folder if ((".yml" in i) or (".yaml" in i))]
     all_cfs = dict()

@@ -49,7 +49,7 @@ def analyse_dmg_area_results(model_name, sub):
 
     assert sub in ["train", "val"]
 
-    data_folder = os.path.join(res_fldr, model_name, sub)
+    data_folder = os.path.join(res_fldr, model_name, "final", sub)
     data_folder = [os.path.join(data_folder, i) for i in os.listdir(data_folder)]
     df_list = [i for i in data_folder if ".csv" in i]
     df_dict = {get_threshold_value(i): i for i in df_list}
