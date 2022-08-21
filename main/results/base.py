@@ -7,6 +7,7 @@ from main.results.analyses import plot_scores, analyse_dmg_area_results, plot_f1
 
 from toolbox.config import get_config
 
+
 def get_mean_f1(f1_scores, model):
 
     # OVERALL
